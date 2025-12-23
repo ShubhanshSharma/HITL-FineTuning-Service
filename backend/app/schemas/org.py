@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, HttpUrl
+from typing import Optional
 from uuid import UUID
 
 class org_register(BaseModel):
@@ -8,7 +9,9 @@ class org_register(BaseModel):
     password: str
     # confirm_password: str
     LLM_endpoint: HttpUrl 
+    llm_api_key: str
     webhook_endpoint: HttpUrl | None = None
+    model : Optional[str] = None
 
 
 

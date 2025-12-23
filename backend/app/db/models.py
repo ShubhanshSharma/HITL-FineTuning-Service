@@ -1,9 +1,10 @@
-from sqlalchemy import Integer, Boolean, Text, String, Column, DateTime, ForeignKey, func, Enum, UniqueConstraint
+from sqlalchemy import ARRAY, CheckConstraint, Integer, Boolean, Text, String, Column, DateTime, ForeignKey, func, Enum, UniqueConstraint
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-
+import enum
 from .base import Base
+from app.schemas.feedback import FeedbackTag
 
 # encrtption
 from cryptography.fernet import Fernet
@@ -30,6 +31,9 @@ class Organization(Base):
     inference_url = Column(Text, nullable=False)
     reload_url = Column(Text, nullable=True)
     callback_url = Column(Text, nullable=True)
+    
+    model = Column(Text, nullable=True)
+    version = Column(Integer, nullable=False, default=1);
 
     hmac_secret = Column(Text, nullable=False)
 
@@ -43,6 +47,21 @@ class Organization(Base):
             raw_secret.encode()
         ).decode()
     
+    llm_api_key_encrypted = Column(Text, nullable=True)
+    @property
+    def llm_api_key(self) -> str | None:
+        if not self.llm_api_key_encrypted:
+            return None
+        return fernet.decrypt(
+            self.llm_api_key_encrypted.encode()
+        ).decode()
+
+    @llm_api_key.setter
+    def llm_api_key(self, raw_key: str):
+        self.llm_api_key_encrypted = fernet.encrypt(
+            raw_key.encode()
+        ).decode()
+        
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     
@@ -63,10 +82,26 @@ class Feedback(Base):
     corrected_response = Column(Text, nullable=True)
 
     version = Column (Integer,nullable=False)
+    tags = Column(
+        ARRAY(
+            Enum(
+                FeedbackTag,
+                name="feedback_tag_enum",
+                create_type=True
+            )
+        ),
+        nullable=False,
+        default=list
+    )
+    rating = Column(Integer, nullable=False)
     
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     organization = relationship("Organization", back_populates="feedbacks")
+
+    __table_args__ = (
+        CheckConstraint("rating IN (-1, 0, 1)", name="rating_valid_values"),
+    )
 
 
 
@@ -96,4 +131,5 @@ class ModelVersion(Base):
     __table_args__ = (
         UniqueConstraint("org_id", "version", name="uq_org_version"),
     )
+
 

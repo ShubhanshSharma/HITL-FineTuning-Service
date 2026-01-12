@@ -10,8 +10,8 @@ class org_register(BaseModel):
     # confirm_password: str
     LLM_endpoint: HttpUrl 
     llm_api_key: str
+    model: str
     webhook_endpoint: HttpUrl | None = None
-    model : Optional[str] = None
 
 
 
@@ -20,6 +20,9 @@ class OrgRegisterResponse(BaseModel):
     id: UUID
     name: str
     contact_email: EmailStr
+    model_version_id: UUID
+    model_version: int
+
 
 class APIResponse(BaseModel):
     message: str

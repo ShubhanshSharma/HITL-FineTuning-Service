@@ -1,6 +1,6 @@
-from sqlalchemy import ARRAY, CheckConstraint, Integer, Boolean, Text, String, Column, DateTime, ForeignKey, func, Enum, UniqueConstraint
+from sqlalchemy import ARRAY, JSON, CheckConstraint, Integer, Boolean, Text, String, Column, DateTime, ForeignKey, func, Enum, UniqueConstraint
 import uuid
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 import enum
 from .base import Base
@@ -33,7 +33,7 @@ class Organization(Base):
     callback_url = Column(Text, nullable=True)
     
     model = Column(Text, nullable=True)
-    version = Column(Integer, nullable=False, default=1);
+    version = Column(Integer, nullable=False, default=0);
 
     hmac_secret = Column(Text, nullable=False)
 
@@ -81,7 +81,11 @@ class Feedback(Base):
     model_response = Column(Text, nullable=False)
     corrected_response = Column(Text, nullable=True)
 
-    version = Column (Integer,nullable=False)
+    model_version_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("model_version.id"),
+        nullable=False
+    )
     tags = Column(
         ARRAY(
             Enum(
@@ -90,7 +94,7 @@ class Feedback(Base):
                 create_type=True
             )
         ),
-        nullable=False,
+        nullable=True,
         default=list
     )
     rating = Column(Integer, nullable=False)
@@ -99,6 +103,10 @@ class Feedback(Base):
 
     organization = relationship("Organization", back_populates="feedbacks")
 
+    model_version = relationship(
+        "ModelVersion",
+        back_populates="feedbacks"
+    )
     __table_args__ = (
         CheckConstraint("rating IN (-1, 0, 1)", name="rating_valid_values"),
     )
@@ -112,24 +120,38 @@ class ModelVersion(Base):
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False, primary_key=True)
     org_id = Column(UUID(as_uuid=True), ForeignKey("organization.id"), nullable=False)
 
+    # Human-facing version
     version = Column(Integer, nullable=False)
+
+    # Lineage
+    parent_model_version_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("model_version.id"),
+        nullable=True
+    )
+
+
+    # Immutable training snapshot
+    feedback_ids = Column(
+        ARRAY(UUID(as_uuid=True)),
+        nullable=False
+    )
+
+    adapter_config = Column(JSON, nullable=True)
     json_url = Column(Text,)
     row_count = Column(Integer)
 
     adapter_url = Column(Text)
     sha256 = Column(Text, nullable=False)
 
-    status = Column(
-        String,
-        nullable=True
-    )
+    status = Column(String, nullable=True)
+
 
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     organization = relationship("Organization", back_populates="model_versions")
+    feedbacks = relationship("Feedback", back_populates="model_version")
 
     __table_args__ = (
         UniqueConstraint("org_id", "version", name="uq_org_version"),
     )
-
-

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -14,23 +14,13 @@ export default function ChatPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
-  const availableTags = [
-    "hallucination",
-    "incorrect",
-    "speculative",
-    "incomplete",
-    "overcomplete",
-    "partial_compliance",
-    "wrong_format",
-    "ignored_constraints",
-    "unclear",
-    "verbose",
-    "too_short",
-    "unsafe",
-    "policy_violation",
-  ];
-
-  const MAX_TAGS = 4;
+  const tagGroups = {
+    "Content Accuracy": ["hallucination", "incorrect", "speculative"],
+    "Response Completeness": ["incomplete", "overcomplete", "too_short"],
+    "Instruction Compliance": ["partial_compliance", "wrong_format", "ignored_constraints"],
+    "Clarity & Style": ["unclear", "verbose"],
+    "Safety & Policy": ["unsafe", "policy_violation"],
+  };
 
   const handleSubmitPrompt = async () => {
     if (!prompt.trim()) return;
@@ -89,24 +79,42 @@ export default function ChatPage() {
     }
   };
 
+  const getTagGroup = (tag: string): string | null => {
+    for (const [groupName, tags] of Object.entries(tagGroups)) {
+      if (tags.includes(tag)) {
+        return groupName;
+      }
+    }
+    return null;
+  };
+
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) => {
+      // If tag is already selected, deselect it
       if (prev.includes(tag)) {
         return prev.filter((t) => t !== tag);
-      } else {
-        if (prev.length >= MAX_TAGS) {
-          toast.error(`Maximum ${MAX_TAGS} tags can be selected`, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
-          return prev;
-        }
-        return [...prev, tag];
       }
+
+      // Find which group this tag belongs to
+      const tagGroup = getTagGroup(tag);
+      if (!tagGroup) return prev;
+
+      // Check if another tag from the same group is already selected
+      const tagsInGroup = tagGroups[tagGroup];
+      const alreadySelectedFromGroup = prev.find((t) => tagsInGroup.includes(t));
+
+      if (alreadySelectedFromGroup) {
+        toast.warning(`Only one tag per group. Replacing "${alreadySelectedFromGroup}" with "${tag}".`, {
+          position: "top-right",
+          autoClose: 2500,
+          toastId: `tag-${tag}`, // Unique ID prevents duplicate toasts
+        });
+        // Replace the old tag with the new one
+        return prev.map((t) => (t === alreadySelectedFromGroup ? tag : t));
+      }
+
+      // Add the new tag
+      return [...prev, tag];
     });
   };
 
@@ -114,34 +122,40 @@ export default function ChatPage() {
     if (rating === null) {
       toast.warning("Please select a rating", {
         position: "top-right",
-        autoClose: 3000,
+        autoClose: 2500,
+        toastId: "rating-warning", // Unique ID prevents duplicate toasts
       });
       return;
     }
 
     const feedbackPayload = {
       prompt,
-      model_response:response,
+      model_response: response,
       rating,
-      correctedResponse: rating !== 1 ? correctedResponse : null,
+      corrected_response: rating !== 1 ? correctedResponse : null,
       tags: rating !== 1 ? selectedTags : [],
     };
 
     setSubmitting(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/v1/feedback/store-feedback`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(feedbackPayload),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/v1/feedback/store-feedback`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(feedbackPayload),
+        }
+      );
 
       if (res.ok) {
         toast.success("Feedback submitted successfully!", {
           position: "top-right",
-          autoClose: 3000,
+          autoClose: 2500,
+          toastId: "submit-success", // Unique ID prevents duplicate toasts
         });
         setPrompt("");
         setResponse("");
@@ -150,15 +164,18 @@ export default function ChatPage() {
         setSelectedTags([]);
         setShowFeedback(false);
       } else {
-        toast.error("Failed to submit feedback", {
+        const errorMessage = await res.json().catch(() => ({}))
+        toast.error(errorMessage.detail || "Failed to submit feedback", {
           position: "top-right",
-          autoClose: 3000,
+          autoClose: 2500,
+          toastId: "submit-error", // Unique ID prevents duplicate toasts
         });
       }
     } catch (error) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
-        autoClose: 3000,
+        autoClose: 2500,
+        toastId: "submit-exception", // Unique ID prevents duplicate toasts
       });
     } finally {
       setSubmitting(false);
@@ -169,7 +186,7 @@ export default function ChatPage() {
     <div className="min-h-screen font-sans bg-black py-12 px-4">
       <ToastContainer
         position="top-right"
-        autoClose={3000}
+        autoClose={2500}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -178,6 +195,7 @@ export default function ChatPage() {
         draggable
         pauseOnHover
         theme="dark"
+        limit={3}
       />
 
       <div className="max-w-5xl mx-auto">
@@ -186,7 +204,9 @@ export default function ChatPage() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             LLM Feedback Collection
           </h1>
-          <p className="text-gray-500 text-sm">Train better models with quality feedback</p>
+          <p className="text-gray-500 text-sm">
+            Train better models with quality feedback
+          </p>
         </div>
 
         {/* Prompt Input */}
@@ -210,8 +230,20 @@ export default function ChatPage() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Generating...
                 </span>
@@ -229,7 +261,9 @@ export default function ChatPage() {
               Model Response
             </label>
             <div className="bg-black/50 rounded-xl p-5 mb-6 border border-gray-800">
-              <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">{response}</p>
+              <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">
+                {response}
+              </p>
             </div>
 
             {showFeedback && (
@@ -244,7 +278,12 @@ export default function ChatPage() {
                   <div className="grid grid-cols-3 gap-3">
                     {[
                       { value: -1, label: "Bad", emoji: "👎", color: "red" },
-                      { value: 0, label: "Neutral", emoji: "😐", color: "yellow" },
+                      {
+                        value: 0,
+                        label: "Neutral",
+                        emoji: "😐",
+                        color: "yellow",
+                      },
                       { value: 1, label: "Good", emoji: "👍", color: "green" },
                     ].map(({ value, label, emoji, color }) => (
                       <button
@@ -273,7 +312,9 @@ export default function ChatPage() {
                     <div>
                       <label className="block text-xs uppercase tracking-wider text-gray-400 mb-3 font-medium">
                         Corrected Response{" "}
-                        <span className="text-gray-600 normal-case">(optional)</span>
+                        <span className="text-gray-600 normal-case">
+                          (optional)
+                        </span>
                       </label>
                       <textarea
                         value={correctedResponse}
@@ -290,24 +331,40 @@ export default function ChatPage() {
                           Issue Tags
                         </label>
                         <span className="text-xs text-gray-600">
-                          {selectedTags.length} / {MAX_TAGS} selected
+                          {selectedTags.length} /{" "}
+                          {Object.keys(tagGroups).length} groups selected
                         </span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {availableTags.map((tag) => (
-                          <button
-                            key={tag}
-                            onClick={() => toggleTag(tag)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                              selectedTags.includes(tag)
-                                ? "bg-linear-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/30"
-                                : "bg-gray-800/50 text-gray-400 hover:bg-gray-800 border border-gray-700 hover:border-gray-600"
-                            }`}
-                          >
-                            {tag.replace(/_/g, " ")}
-                          </button>
+
+                      <div className="space-y-6">
+                        {Object.entries(tagGroups).map(([groupName, tags]) => (
+                          <div key={groupName}>
+                            <h3 className="text-sm font-medium text-gray-500 mb-3">
+                              {groupName}
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                              {tags.map((tag) => (
+                                <button
+                                  key={tag}
+                                  onClick={() => toggleTag(tag)}
+                                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                    selectedTags.includes(tag)
+                                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/30"
+                                      : "bg-gray-800/50 text-gray-400 hover:bg-gray-800 border border-gray-700 hover:border-gray-600"
+                                  }`}
+                                >
+                                  {tag.replace(/_/g, " ")}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         ))}
                       </div>
+
+                      <p className="text-xs text-gray-600 mt-4 italic">
+                        * Select one tag per group (max{" "}
+                        {Object.keys(tagGroups).length} tags total)
+                      </p>
                     </div>
                   </>
                 )}
@@ -322,9 +379,24 @@ export default function ChatPage() {
                     >
                       {submitting ? (
                         <span className="flex items-center justify-center gap-2">
-                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          <svg
+                            className="animate-spin h-5 w-5"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
                           </svg>
                           Submitting Feedback...
                         </span>

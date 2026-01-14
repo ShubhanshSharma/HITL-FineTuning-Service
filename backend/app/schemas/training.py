@@ -18,6 +18,7 @@ ALLOWED_TARGET_MODULES = {
     "gate_proj",
     "up_proj",
     "down_proj",
+    "query_key_value",
 }
 
 

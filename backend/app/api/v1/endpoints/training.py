@@ -133,7 +133,13 @@ def configure_lora_adapter(
     db.commit()
     db.refresh(model_version)
 
-    trigger_training(model_version.id)
+    # print('passing: ', model_version)
+    trigger_training(
+        model_version_id=str(model_version.id),
+        json_url=model_version.json_url,
+        adapter_config_json=json.dumps(model_version.adapter_config),
+    )
+
 
     return {
         "model_version_id": model_version.id,

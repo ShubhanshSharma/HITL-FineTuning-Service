@@ -1,0 +1,6 @@
+modal
+torch
+transformers
+peft
+accelerate
+datasets

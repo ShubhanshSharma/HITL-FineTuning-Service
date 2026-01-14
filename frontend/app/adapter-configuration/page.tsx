@@ -5,11 +5,12 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const MODEL_TARGET_MODULE_MAP: Record<string, string[]> = {
-  "meta-llama/Meta-Llama-3-8B-Instruct": ["q_proj", "v_proj"],
-  "mistralai/Mistral-7B-Instruct-v0.2": ["q_proj", "v_proj"],
-  "Qwen/Qwen2.5-7B-Instruct": ["q_proj", "v_proj"],
-  "microsoft/phi-3-mini-4k-instruct": ["q_proj", "k_proj", "v_proj"],
+  "meta-llama/Meta-Llama-3-8B-Instruct": ["q_proj", "k_proj", "v_proj"],
+  "mistralai/Mistral-7B-Instruct-v0.2": ["q_proj", "k_proj", "v_proj"],
+  "Qwen/Qwen2.5-7B-Instruct": ["q_proj", "k_proj", "v_proj"],
+  "microsoft/phi-3-mini-4k-instruct": ["query_key_value"],
 };
+
 
 const FIELD_INFO = {
   baseModel: "The foundation model that will be fine-tuned. LoRA adapters are specific to the base model architecture.",
@@ -55,19 +56,40 @@ export default function LoRAConfigPage() {
 
   // Auto-update target modules when base model changes
   useEffect(() => {
-    const recommended = MODEL_TARGET_MODULE_MAP[baseModel];
-    if (recommended) {
-      setTargetModules(recommended);
-    }
-  }, [baseModel]);
+  const recommended = MODEL_TARGET_MODULE_MAP[baseModel];
+  if (!recommended) return;
 
-  const toggleTargetModule = (module: string) => {
-    setTargetModules((prev) =>
-      prev.includes(module)
-        ? prev.filter((m) => m !== module)
-        : [...prev, module]
+  setTargetModules((prev) =>
+    prev.filter((m) => recommended.includes(m)).length > 0
+      ? prev.filter((m) => recommended.includes(m))
+      : recommended
+  );
+}, [baseModel]);
+
+
+const toggleTargetModule = (module: string) => {
+  const allowed = MODEL_TARGET_MODULE_MAP[baseModel];
+
+  // 🚫 block invalid modules for this model
+  if (allowed && !allowed.includes(module)) {
+    toast.warning(
+      `"${module}" is not supported for the selected base model`,
+      {
+        position: "top-right",
+        autoClose: 2000,
+        toastId: `invalid-module-${module}`,
+      }
     );
-  };
+    return;
+  }
+
+  setTargetModules((prev) =>
+    prev.includes(module)
+      ? prev.filter((m) => m !== module)
+      : [...prev, module]
+  );
+};
+
 
   const toggleInfo = (field: string) => {
     setOpenInfo(openInfo === field ? null : field);

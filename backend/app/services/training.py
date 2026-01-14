@@ -1,18 +1,24 @@
-from pathlib import Path
-import subprocess
 import sys
+from pathlib import Path
+
+import modal
+
+ROOT = Path(__file__).resolve().parents[3]  # project root
+sys.path.append(str(ROOT))
 
 
-def trigger_training(model_version_id):
-    script_path = (
-        Path(__file__).resolve().parents[1] / "services" / "train_lora.py"
+from modal_apps.train_lora_app import train_lora
+
+
+def trigger_training(model_version_id: str, json_url: str, adapter_config_json: str):
+
+    fn = modal.Function.from_name(
+        "lora-training-dev",   # app name
+        "train_lora",          # function name
     )
 
-    subprocess.Popen(
-        [
-            sys.executable,              # ✅ use same venv python
-            str(script_path),
-            str(model_version_id),
-        ],
-        start_new_session=True,           # detach from uvicorn
+    fn.spawn(
+        model_version_id,
+        json_url,
+        adapter_config_json,
     )

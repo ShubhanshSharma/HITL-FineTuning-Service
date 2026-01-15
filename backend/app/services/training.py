@@ -17,8 +17,12 @@ def trigger_training(model_version_id: str, json_url: str, adapter_config_json: 
         "train_lora",          # function name
     )
 
-    fn.spawn(
+    call = fn.spawn(
         model_version_id,
         json_url,
         adapter_config_json,
     )
+
+    result = call.get()  # waits for Modal job
+
+    return result

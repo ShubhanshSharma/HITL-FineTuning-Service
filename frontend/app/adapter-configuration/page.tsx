@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const MODEL_TARGET_MODULE_MAP: Record<string, string[]> = {
@@ -125,7 +125,7 @@ const toggleTargetModule = (module: string) => {
         "Selected target modules differ from recommended defaults for this model",
         {
           position: "top-right",
-          autoClose: 3000,
+          autoClose: 8000,
           toastId: "modules-warning",
         }
       );
@@ -150,6 +150,15 @@ const toggleTargetModule = (module: string) => {
     setSubmitting(true);
 
     try {
+
+      toast.info("LoRA adapter generatoin will take time. once done, you will be directed to new page",{
+        position: "top-right",
+        autoClose: false,
+        closeOnClick: true,
+        draggable: true,
+        transition: Bounce,
+        toastId: "submit-info"
+      })
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/v1/training/configure-lora`,
         {
@@ -168,13 +177,13 @@ const toggleTargetModule = (module: string) => {
 
       toast.success("LoRA configuration submitted successfully!", {
         position: "top-right",
-        autoClose: 2500,
+        autoClose: 5500,
         toastId: "submit-success",
       });
     } catch (error) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
-        autoClose: 3000,
+        autoClose: 7000,
         toastId: "submit-error",
       });
     } finally {

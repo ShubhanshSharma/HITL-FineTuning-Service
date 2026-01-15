@@ -87,6 +87,7 @@ def generate_jsonl(
     model_version.json_url = public_url
     model_version.row_count = len(cleaned_feedbacks)
 
+    
     db.commit()
 
     return {
@@ -134,12 +135,27 @@ def configure_lora_adapter(
     db.refresh(model_version)
 
     # print('passing: ', model_version)
-    trigger_training(
+    result = trigger_training(
         model_version_id=str(model_version.id),
         json_url=model_version.json_url,
         adapter_config_json=json.dumps(model_version.adapter_config),
     )
 
+    model_version.status = "READY"
+    model_version.adapter_url = result["adapter_dir"]
+
+    next_model_version = ModelVersion(
+        org_id = model_version.org_id,
+        version = model_version.version + 1,
+        parent_model_version_id = model_version.id,
+        feedback_ids=[],
+        status="COLLECTING_FEEDBACK",
+        sha256="bootstrap"
+    )
+
+    db.add(next_model_version)
+
+    db.commit()
 
     return {
         "model_version_id": model_version.id,

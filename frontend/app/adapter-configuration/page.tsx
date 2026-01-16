@@ -180,7 +180,7 @@ const toggleTargetModule = (module: string) => {
         autoClose: 5500,
         toastId: "submit-success",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
         autoClose: 7000,
@@ -231,7 +231,7 @@ const toggleTargetModule = (module: string) => {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             LoRA Adapter Configuration
           </h1>
           <p className="text-gray-500 text-sm">
@@ -291,7 +291,7 @@ const toggleTargetModule = (module: string) => {
               </select>
             </div>
 
-            <div className="h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
+            <div className="h-px bg-linear-to-r from-transparent via-gray-800 to-transparent" />
 
             {/* LoRA Configuration Section */}
             <div>
@@ -522,7 +522,7 @@ const toggleTargetModule = (module: string) => {
               </div>
             </div>
 
-            <div className="h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
+            <div className="h-px bg-linear-to-r from-transparent via-gray-800 to-transparent" />
 
             {/* Training Configuration Section */}
             <div>
@@ -736,7 +736,7 @@ const toggleTargetModule = (module: string) => {
           <button
             onClick={handleSubmit}
             disabled={submitting || !baseModel || targetModules.length === 0}
-            className="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg shadow-green-500/20 disabled:shadow-none"
+            className="flex-1 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg shadow-green-500/20 disabled:shadow-none"
           >
             {submitting ? (
               <span className="flex items-center justify-center gap-2">

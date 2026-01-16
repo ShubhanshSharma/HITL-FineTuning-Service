@@ -48,7 +48,7 @@ export default function TrainingOrchestrationPage() {
 
       const data = await res.json();
       setStats(data);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
         autoClose: 3000,
@@ -83,7 +83,7 @@ export default function TrainingOrchestrationPage() {
         autoClose: 3000,
         toastId: "training-success",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
         autoClose: 3000,
@@ -210,7 +210,7 @@ export default function TrainingOrchestrationPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
                 Training Orchestration
               </h1>
               <p className="text-gray-500 text-sm">
@@ -392,7 +392,7 @@ export default function TrainingOrchestrationPage() {
                       </div>
                       <div className="w-full bg-gray-800 rounded-full h-2">
                         <div
-                          className={`bg-gradient-to-r ${color} h-2 rounded-full transition-all duration-300`}
+                          className={`bg-linear-to-r ${color} h-2 rounded-full transition-all duration-300`}
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
@@ -426,7 +426,7 @@ export default function TrainingOrchestrationPage() {
                         </div>
                         <div className="w-full bg-gray-800 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                            className="bg-linear-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -473,7 +473,7 @@ export default function TrainingOrchestrationPage() {
               >
                 <div className="flex items-start gap-4">
                   {/* Index */}
-                  <div className="flex-shrink-0 w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center">
                     <span className="text-gray-400 font-semibold">
                       #{index + 1}
                     </span>

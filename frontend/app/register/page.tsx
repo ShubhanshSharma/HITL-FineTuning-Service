@@ -81,7 +81,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-3 bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
             Register Organization
           </h1>
           <p className="text-gray-400 text-lg">
@@ -246,7 +246,7 @@ export default function RegisterPage() {
             {/* model */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Model (option)
+                Model Name (optional)
               </label>
               <input
                 className="w-full bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono"

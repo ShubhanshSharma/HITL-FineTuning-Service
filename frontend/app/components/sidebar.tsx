@@ -87,7 +87,8 @@ export default function Sidebar() {
       DONE: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
       NO_MODEL: "bg-gray-500/10 text-gray-400 border-gray-500/30",
     };
-    return colors[status] || colors.NO_MODEL;
+    type Status = keyof typeof colors
+    return colors[status as Status] || colors.NO_MODEL;
   };
 
   const getStatusIcon = (status: string) => {
@@ -102,19 +103,19 @@ export default function Sidebar() {
     return <div className="w-2 h-2 rounded-full bg-current" />;
   };
 
-  const NavItem = ({ href, icon, label, badge, subInfo, highlight = false }) => {
+  const NavItem = ({ href, icon, label, badge, subInfo, highlight = false }: { href: string; icon: React.ReactNode; label: string; badge?: React.ReactNode; subInfo?: string; highlight?: boolean }) => {
     const isActive = pathname === href;
     return (
       <button
         onClick={() => router.push(href)}
         className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl transition-all group ${
           isActive
-            ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/40"
+            ? "bg-linear-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/40"
             : "hover:bg-gray-800/60 border border-transparent"
         } ${highlight ? "ring-2 ring-green-500/50 animate-pulse" : ""}`}
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className={`flex-shrink-0 ${isActive ? "text-blue-400" : "text-gray-400 group-hover:text-gray-300"}`}>
+          <div className={`shrink-0 ${isActive ? "text-blue-400" : "text-gray-400 group-hover:text-gray-300"}`}>
             {icon}
           </div>
           {!isCollapsed && (
@@ -131,13 +132,13 @@ export default function Sidebar() {
           )}
         </div>
         {!isCollapsed && badge && (
-          <div className="flex-shrink-0">{badge}</div>
+          <div className="shrink-0">{badge}</div>
         )}
       </button>
     );
   };
 
-  const SectionHeader = ({ children }) => (
+  const SectionHeader = ({ children }: { children: React.ReactNode }) => (
     !isCollapsed && (
       <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
         {children}
@@ -147,9 +148,9 @@ export default function Sidebar() {
 
   if (!isAuthenticated) {
     return (
-      <div className="w-72 h-screen bg-gradient-to-b from-gray-950 to-black border-r border-gray-800 flex flex-col items-center justify-center p-8">
+      <div className="w-72 h-screen bg-linear-to-b from-gray-950 to-black border-r border-gray-800 flex flex-col items-center justify-center p-8">
         <div className="text-center space-y-6">
-          <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto bg-linear-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
             <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
@@ -161,7 +162,7 @@ export default function Sidebar() {
           <div className="space-y-3 w-full">
             <button
               onClick={() => router.push("/login")}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-xl transition-all"
+              className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-xl transition-all"
             >
               Login
             </button>
@@ -177,20 +178,20 @@ export default function Sidebar() {
     );
   }
 
-  const readyForTraining = data?.feedback?.count >= 20;
+  const readyForTraining = (data?.feedback?.count ?? 0) >= 20;
 
   return (
     <div
       className={`${
         isCollapsed ? "w-20" : "w-72"
-      } h-screen bg-gradient-to-b font-sans from-gray-950 to-black border-r border-gray-800 flex flex-col transition-all duration-300`}
+      } h-screen bg-linear-to-b font-sans from-gray-950 to-black border-r border-gray-800 flex flex-col transition-all duration-300`}
     >
       {/* Header */}
       <div className="p-4 border-b border-gray-800">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                 <svg
                   className="w-5 h-5 text-white"
                   fill="none"
@@ -258,13 +259,13 @@ export default function Sidebar() {
             }
             label="Chat"
             subInfo={
-              data?.chat?.live_model_version >= 0
+              (data?.chat?.live_model_version ?? 0) >= 0
                 ? `Model v${data?.chat?.live_model_version}`
                 : "No model active"
             }
             badge={
               <div className="flex items-center gap-2">
-                {data?.chat?.live_model_version >= 0 && (
+                {(data?.chat?.live_model_version ?? 0) >= 0 && (
                   <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/30">
                     <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                     <span className="text-xs text-green-400 font-medium">
@@ -272,10 +273,10 @@ export default function Sidebar() {
                     </span>
                   </div>
                 )}
-                {data?.feedback?.count > 0 && (
+                {(data?.feedback?.count ?? 0) > 0 && (
                   <div className="px-2 py-1 rounded-full bg-blue-500/20 border border-blue-500/30">
                     <span className="text-xs text-blue-400 font-bold">
-                      {data.feedback.count}
+                      {data?.feedback.count}
                     </span>
                   </div>
                 )}
@@ -388,7 +389,7 @@ export default function Sidebar() {
               0
             } adapters generated`}
             badge={
-              data?.models?.length > 0 && (
+              (data?.models?.length ?? 0) > 0 && (
                 <div className="px-2 py-1 rounded-full bg-purple-500/20 border border-purple-500/30">
                   <span className="text-xs text-purple-400 font-bold">
                     {
@@ -431,10 +432,10 @@ export default function Sidebar() {
             label="History"
             subInfo={`${data?.models?.length || 0} models trained`}
             badge={
-              data?.models?.length > 0 && (
+              (data?.models?.length ?? 0) > 0 && (
                 <div className="px-2 py-1 rounded-full bg-purple-500/20 border border-purple-500/30">
                   <span className="text-xs text-purple-400 font-bold">
-                    {data.models.length}
+                    {data?.models.length}
                   </span>
                 </div>
               )

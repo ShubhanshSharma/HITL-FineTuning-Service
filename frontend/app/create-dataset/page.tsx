@@ -91,7 +91,7 @@ export default function ManageFeedbacksPage() {
         autoClose: 2000,
         toastId: "filter-success",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
         autoClose: 3000,
@@ -130,7 +130,7 @@ export default function ManageFeedbacksPage() {
         autoClose: 2000,
         toastId: `delete-${feedbackId}`,
       });
-    } catch (error) {
+    } catch (error: any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
         autoClose: 3000,
@@ -164,7 +164,7 @@ export default function ManageFeedbacksPage() {
         autoClose: 2000,
         toastId: `add-${feedbackId}`,
       });
-    } catch (error) {
+    } catch (error: any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
         autoClose: 3000,
@@ -199,7 +199,7 @@ export default function ManageFeedbacksPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             Manage Feedbacks
           </h1>
           <p className="text-gray-500 text-sm">
@@ -283,7 +283,7 @@ export default function ManageFeedbacksPage() {
                           onClick={() => toggleTag(tag)}
                           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                             selectedTags.includes(tag)
-                              ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/30"
+                              ? "bg-linear-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/30"
                               : "bg-gray-800/50 text-gray-400 hover:bg-gray-800 border border-gray-700 hover:border-gray-600"
                           }`}
                         >
@@ -301,7 +301,7 @@ export default function ManageFeedbacksPage() {
               <button
                 onClick={applyFilters}
                 disabled={loading}
-                className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg shadow-blue-500/20 disabled:shadow-none"
+                className="flex-1 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg shadow-blue-500/20 disabled:shadow-none"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -433,7 +433,7 @@ export default function ManageFeedbacksPage() {
                       <div className="flex gap-3 pt-4">
                         <button
                           onClick={() => addFeedback(feedback.id)}
-                          className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 font-medium shadow-lg shadow-green-500/20 text-sm"
+                          className="px-6 py-2 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 font-medium shadow-lg shadow-green-500/20 text-sm"
                         >
                           <span className="flex items-center gap-2">
                             <svg
@@ -454,7 +454,7 @@ export default function ManageFeedbacksPage() {
                         </button>
                         <button
                           onClick={() => deleteFeedback(feedback.id)}
-                          className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 font-medium shadow-lg shadow-red-500/20 text-sm"
+                          className="px-6 py-2 bg-linear-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 font-medium shadow-lg shadow-red-500/20 text-sm"
                         >
                           <span className="flex items-center gap-2">
                             <svg

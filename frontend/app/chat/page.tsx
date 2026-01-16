@@ -63,7 +63,7 @@ export default function ChatPage() {
       const data = await res.json();
       setResponse(data.output);
       setShowFeedback(true);
-    } catch (error) {
+    } catch (error: any) {
       setResponse(`Error: ${error.message}`);
       setShowFeedback(true);
     } finally {
@@ -100,7 +100,8 @@ export default function ChatPage() {
       if (!tagGroup) return prev;
 
       // Check if another tag from the same group is already selected
-      const tagsInGroup = tagGroups[tagGroup];
+      type TagGroup = keyof typeof tagGroups;
+      const tagsInGroup = tagGroups[tagGroup as TagGroup];
       const alreadySelectedFromGroup = prev.find((t) => tagsInGroup.includes(t));
 
       if (alreadySelectedFromGroup) {
@@ -171,7 +172,7 @@ export default function ChatPage() {
           toastId: "submit-error", // Unique ID prevents duplicate toasts
         });
       }
-    } catch (error) {
+    } catch (error:any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
         autoClose: 2500,
@@ -201,7 +202,7 @@ export default function ChatPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             LLM Feedback Collection
           </h1>
           <p className="text-gray-500 text-sm">
@@ -225,7 +226,7 @@ export default function ChatPage() {
             <button
               onClick={handleSubmitPrompt}
               disabled={loading || !prompt.trim()}
-              className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg shadow-blue-500/20 disabled:shadow-none"
+              className="px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg shadow-blue-500/20 disabled:shadow-none"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -268,7 +269,7 @@ export default function ChatPage() {
 
             {showFeedback && (
               <div className="space-y-8">
-                <div className="h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
+                <div className="h-px bg-linear-to-r from-transparent via-gray-800 to-transparent" />
 
                 {/* Rating */}
                 <div>
@@ -349,7 +350,7 @@ export default function ChatPage() {
                                   onClick={() => toggleTag(tag)}
                                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                                     selectedTags.includes(tag)
-                                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/30"
+                                      ? "bg-linear-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/30"
                                       : "bg-gray-800/50 text-gray-400 hover:bg-gray-800 border border-gray-700 hover:border-gray-600"
                                   }`}
                                 >
@@ -375,7 +376,7 @@ export default function ChatPage() {
                     <button
                       onClick={handleSubmitFeedback}
                       disabled={submitting}
-                      className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg shadow-green-500/20 disabled:shadow-none"
+                      className="w-full py-4 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg shadow-green-500/20 disabled:shadow-none"
                     >
                       {submitting ? (
                         <span className="flex items-center justify-center gap-2">

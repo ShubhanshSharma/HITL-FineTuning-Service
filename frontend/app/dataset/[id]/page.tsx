@@ -62,7 +62,7 @@ export default function DatasetDetailsPage() {
 
       const data = await res.json();
       setDataset(data);
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
       toast.error(`Error: ${err.message}`, {
         position: "top-right",
@@ -191,7 +191,7 @@ export default function DatasetDetailsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
                 Dataset Details
               </h1>
               <p className="text-gray-500 text-sm">
@@ -462,7 +462,7 @@ export default function DatasetDetailsPage() {
                         </div>
                         <div className="w-full bg-gray-800 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                            className="bg-linear-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -497,7 +497,7 @@ export default function DatasetDetailsPage() {
                         </div>
                         <div className="w-full bg-gray-800 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
+                            className="bg-linear-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>

@@ -41,7 +41,7 @@ export default function ModelVersionsPage() {
 
       const data = await res.json();
       setModels(data);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
         autoClose: 3000,
@@ -166,7 +166,7 @@ export default function ModelVersionsPage() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
               Model Version {selectedModel.version}
             </h1>
             <p className="text-gray-500 text-sm">ID: {selectedModel.id}</p>
@@ -262,7 +262,7 @@ export default function ModelVersionsPage() {
                 className={`rounded-xl p-6 transition-all duration-200 flex items-center gap-4 group
         ${
           selectedModel?.adapter_url
-            ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+            ? "bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
             : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
         }`}
               >
@@ -304,7 +304,7 @@ export default function ModelVersionsPage() {
                 className={`rounded-xl p-6 transition-all duration-200 flex items-center gap-4 group
         ${
           selectedModel?.json_url
-            ? "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+            ? "bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
             : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
         }`}
               >
@@ -399,7 +399,7 @@ export default function ModelVersionsPage() {
                     return (
                       <div
                         key={key}
-                        className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 rounded-xl p-5 border border-gray-700/50 hover:border-gray-600/50 transition-all"
+                        className="bg-linear-to-br from-gray-800/40 to-gray-900/40 rounded-xl p-5 border border-gray-700/50 hover:border-gray-600/50 transition-all"
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
@@ -536,7 +536,7 @@ export default function ModelVersionsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             Versions History
           </h1>
           <p className="text-gray-500 text-sm">

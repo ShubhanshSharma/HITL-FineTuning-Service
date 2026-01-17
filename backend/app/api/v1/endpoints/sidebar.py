@@ -18,15 +18,6 @@ def get_sidebar_data(
     org_id = current_user["org_id"]
 
     # ---------------------------
-    # Feedback
-    # ---------------------------
-    feedback_count = (
-        db.query(func.count(Feedback.id))
-        .filter(Feedback.org_id == org_id)
-        .scalar()
-    )
-
-    # ---------------------------
     # Model Versions
     # ---------------------------
     model_versions = (
@@ -48,6 +39,15 @@ def get_sidebar_data(
         }
         for m in model_versions
     ]
+
+     # ---------------------------
+    # Feedback
+    # ---------------------------
+    feedback_count = (
+        db.query(func.count(Feedback.id))
+        .filter(Feedback.org_id == org_id, Feedback.model_version_id == latest_model.id)
+        .scalar()
+    )
 
     return {
         "org_id": org_id,

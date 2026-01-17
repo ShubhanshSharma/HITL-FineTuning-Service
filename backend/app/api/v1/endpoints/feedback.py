@@ -324,6 +324,81 @@ def add_feedback_to_model_version(
     }
 
 
+@router.post("/delete-feedback", status_code=200)
+def delete_feedback(
+    payload: AddFeedbackRequest,
+    ctx=Depends(get_org_context),
+    db: Session = Depends(get_db),
+):
+    org_id = ctx["org_id"]
+
+    # ---- load feedback ----
+    feedback = (
+        db.query(Feedback)
+        .filter(
+            Feedback.id == payload.feedback_id,
+            Feedback.org_id == org_id,
+        )
+        .one_or_none()
+    )
+
+    if not feedback:
+        raise HTTPException(
+            status_code=404,
+            detail="Feedback not found",
+        )
+
+    # ---- load deployed model version ----
+    model_version = (
+        db.query(ModelVersion)
+        .filter(
+            ModelVersion.org_id == org_id,
+            ModelVersion.status == "COLLECTING_FEEDBACK",
+        )
+        .one_or_none()
+    )
+
+    if not model_version:
+        raise HTTPException(
+            status_code=409,
+            detail="No deployed model version",
+        )
+
+    # ---- enforce same-model invariant ----
+    if feedback.model_version_id != model_version.id:
+        raise HTTPException(
+            status_code=409,
+            detail="Feedback does not belong to current model version",
+        )
+
+    
+
+    # ---- remove feedback id from model version ----
+    model_version.feedback_ids = [
+        fid for fid in model_version.feedback_ids
+        if fid != payload.feedback_id
+    ]
+
+    # ---- delete feedback row ----
+    db.delete(feedback)
+
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Could not delete feedback",
+        )
+
+    return {
+        "message": "Feedback deleted successfully",
+        "model_version_id": model_version.id,
+        "total_feedbacks": len(model_version.feedback_ids),
+    }
+
+
+
 
 @router.get("/get-training-stats", status_code=status.HTTP_200_OK)
 def get_training_stats(

@@ -6,44 +6,49 @@ export default function LandingPage() {
   const router = useRouter();
 
   return (
-    <div className="bg-black font-sans text-white min-h-screen">
+    <div className="bg-linear-to-r from-gray-950 via-gray-950 to-black font-sans text-white min-h-screen">
       
 
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center px-6 pt-10">
+      <section className="min-h-screen flex items-center justify-center px-6 pt-10  ">
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-6">
-            <span className=" text-4xl font-black bg-linear-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent md:text-7xl ">
-              H . I . T . L
+            <span className=" text-4xl font-light bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent md:text-7xl ">
+              HITL LoRA Pipeline
             </span>
           </div>
 
-          <h1 className="text-xl text-gray-300 font-stretch-extra-expanded capitalize  md:text-xl font-medium mb-16">
+          <h1 className="text-sm text-gray-400 font-stretch-extra-expanded capitalize  md:text-lg font-thin mb-20">
             human - in - the - loop
           </h1>
 
 
-          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
+          <p className="text-xl italic text-gray-400 mb-20 max-w-2xl mx-auto font-extralight">
             Collect real conversations, filter quality data, and train custom LoRA adapters — all in one platform.
           </p>
 
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-4 mb-20">
             <button
-              onClick={() => router.push("/register")}
-              className="px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:-translate-y-1"
+              onClick={() => {
+                if (typeof window !== "undefined" && !localStorage.getItem("token")) {
+                  router.push("/register");
+                }else{router.push('/chat')}
+              }}
+              
+              className="px-8 py-4 font-thin bg-linear-to-r from-blue-600 to-purple-600 rounded-xl  hover:from-blue-700 hover:to-purple-700 transition-all transform hover:-translate-y-1"
             >
               Start Training Free
             </button>
             <a
-              href="#how-it-works"
-              className="px-8 py-4 bg-gray-800 rounded-xl font-semibold hover:bg-gray-700 transition-all border border-gray-700"
+              href="/docs"
+              className="px-8 py-4 font-thin  bg-gray-800 rounded-xl hover:bg-gray-700 transition-all border border-gray-700"
             >
               Learn More
             </a>
           </div>
 
           {/* Hero Visual */}
-          <div className="mt-20 relative">
+          <div className=" relative">
             <div className="bg-linear-to-r from-blue-600 to-purple-600 p-0.5 rounded-2xl hover:transform hover:-translate-y-1 transition-all">
               <div className="bg-black rounded-2xl p-8">
                 <div className="grid grid-cols-3 gap-4">
@@ -82,14 +87,14 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-32 px-6 bg-linear-to-b from-black to-gray-950">
+      <section id="how-it-works" className="py-40 px-6 ">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
+          <div className="text-center mb-48">
             <h2 className="text-5xl font-bold mb-4">How It Works</h2>
             <p className="text-gray-400 text-lg">Three simple steps to custom models</p>
           </div>
 
-          <div className="space-y-16">
+          <div className="space-y-80">
             {/* Step 1 */}
             <div className="flex items-center gap-12">
               <div className="flex-1">
@@ -231,7 +236,7 @@ export default function LandingPage() {
       {/* Features */}
       <section id="features" className="py-32 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
+          <div className="text-center mb-40">
             <h2 className="text-5xl font-bold mb-4">Built for Quality</h2>
             <p className="text-gray-400 text-lg">Everything you need to train better models</p>
           </div>
@@ -271,13 +276,17 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-32 px-6 bg-linear-to-b from-black to-gray-950">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="relative flex justify-center px-6 h-dvh">
+        <div className="relative max-w-4xl m-auto text-center">
           <h2 className="text-5xl font-bold mb-6">Ready to Build Better Models?</h2>
           <p className="text-xl text-gray-400 mb-12">Start collecting feedback and training custom LoRA adapters today.</p>
           <button
-            onClick={() => router.push("/register")}
-            className="px-10 py-5 bg-linear-to-r from-blue-600 to-purple-600 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all transform hover:-translate-y-1"
+            onClick={() => {
+                if (typeof window !== "undefined" && !localStorage.getItem("token")) {
+                  router.push("/register");
+                }else{router.push('/chat')}
+              }}
+            className="px-10 py-5 bg-linear-to-r from-blue-600 to-purple-600 rounded-xl font-thin text-lg hover:from-blue-700 hover:to-purple-700 transition-all transform hover:-translate-y-1"
           >
             Start Training Free
           </button>
@@ -285,7 +294,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-12 px-6">
+      <footer className="border-t border-gray-800 py-5 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

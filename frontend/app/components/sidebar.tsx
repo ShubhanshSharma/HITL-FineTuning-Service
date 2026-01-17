@@ -47,7 +47,7 @@ export default function Sidebar() {
 
     if (token) {
       fetchSidebarData();
-      const interval = setInterval(fetchSidebarData, 30000);
+      const interval = setInterval(fetchSidebarData, 60000);
       return () => clearInterval(interval);
     }
   }, []);
@@ -190,7 +190,7 @@ export default function Sidebar() {
       <div className="p-4 border-b border-gray-800">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <div className="flex items-center gap-3">
+            <div onClick={() => router.push('/home')} className="flex cursor-pointer items-center gap-3">
               <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                 <svg
                   className="w-5 h-5 text-white"
@@ -236,7 +236,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-6">
+      <div className="flex-1 overflow-y-auto py-3 px-1 space-y-6">
         {/* Feedback Loop Section */}
         <div className="space-y-2">
           {/* <SectionHeader>Feedback Loop</SectionHeader> */}
@@ -308,18 +308,7 @@ export default function Sidebar() {
             label="Create Dataset"
             subInfo={`${data?.feedback?.count || 0} feedback items`}
             highlight={readyForTraining}
-            // badge={
-            //   readyForTraining ? (
-            //     <div className="px-2 py-1 rounded-full bg-green-500/20 border border-green-500/30 flex items-center gap-1">
-            //       <svg className="w-3 h-3 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-            //         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            //       </svg>
-            //       <span className="text-xs text-green-400 font-medium">Ready</span>
-            //     </div>
-            //   ) : (
-            //     <span className="text-xs text-gray-500">{20 - (data?.feedback?.count || 0)} more required</span>
-            //   )
-            // }
+            
           />
         </div>
 
@@ -355,7 +344,7 @@ export default function Sidebar() {
                 >
                   {getStatusIcon(data.training.latest_status)}
                   <span className="text-xs font-medium">
-                    {data.training.latest_status.replace(/_/g, " ")}
+                    {data.training.latest_status.replace(/_/g, " ").substring(0, 15)}
                   </span>
                 </div>
               )

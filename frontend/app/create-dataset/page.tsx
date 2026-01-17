@@ -105,9 +105,9 @@ export default function ManageFeedbacksPage() {
   const deleteFeedback = async (feedbackId: string) => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/v1/feedback/delete`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/v1/feedback/delete-feedback`,
         {
-          method: "DELETE",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,

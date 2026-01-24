@@ -17,6 +17,8 @@ from sqlalchemy.orm import Session
 import requests
 import json
 
+from app.services.feedback import extract_by_path
+
 router = APIRouter()
 
 OPENAI_API_KEY = os.getenv("GROQ_API_KEY")
@@ -72,22 +74,56 @@ def generate_text(
         )
 
     # call LLM
-    response = requests.post(
-        org.inference_url,
-        headers={
-            "Authorization": f"Bearer {org.llm_api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model":  org.model,  # base LLM name
-            "messages": [
-                {"role": "user", "content": payload.prompt}
-            ],
-            "max_tokens": payload.max_tokens,
-            "temperature": payload.temperature,
-        },
+    schema = org.llm_request_schema or {}
+
+    request_mapping = schema.get("request_mapping", {})
+    payload_defaults = schema.get("payload_defaults", {})
+
+    request_body = {}
+
+    # canonical inputs
+    canonical_payload = {
+        "model": org.model,
+        "messages": [{"role": "user", "content": payload.prompt}],
+        "temperature": payload.temperature,
+        "max_tokens": payload.max_tokens,
+    }
+
+    # apply defaults
+    for k, v in payload_defaults.items():
+        canonical_payload.setdefault(k, v)
+
+    # map canonical → provider
+    for canonical_key, provider_key in request_mapping.items():
+        if canonical_key in canonical_payload and provider_key:
+            request_body[provider_key] = canonical_payload[canonical_key]
+
+    
+    if org.model:
+        request_body["model"] = org.model
+    
+    headers = {
+        "Content-Type": "application/json",
+    }
+
+    auth_cfg = schema.get("auth")
+
+    if auth_cfg and org.llm_api_key:
+        header_name = auth_cfg.get("header", "Authorization")
+        prefix = auth_cfg.get("prefix", "")
+        headers[header_name] = f"{prefix}{org.llm_api_key}"
+
+    
+    method = schema.get("method", "POST").upper()
+
+    response = requests.request(
+        method=method,
+        url=org.inference_url,
+        headers=headers,
+        json=request_body,
         timeout=30,
     )
+
 
     if response.status_code != 200:
         raise HTTPException(
@@ -96,12 +132,21 @@ def generate_text(
         )
 
     try:
-        generated_text = response.json()["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, TypeError):
+        response_json = response.json()
+        response_mapping = schema.get("response_mapping", {})
+        text_path = response_mapping.get("text")
+
+        if not text_path:
+            raise KeyError("response_mapping.text missing")
+
+        generated_text = extract_by_path(response_json, text_path)
+
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected LLM response format",
         )
+
 
     return GenerateResponse(output=generated_text)
 
@@ -169,7 +214,7 @@ def store_feedback(
 def filter_feedbacks(
     ratings: Optional[str] = None,
     tags: Optional[str] = None,
-    has_correction: Optional[bool] = None,
+    has_correction: Optional[str] = None,
     ctx=Depends(get_org_context),
     db: Session = Depends(get_db),
 ):
@@ -208,6 +253,10 @@ def filter_feedbacks(
         )
     )
 
+    print(type(Feedback.tags.type))
+    print(Feedback.tags.type)
+
+
     # ---- ratings filter ----
     if ratings:
         rating_list = [int(r) for r in ratings.split(",")]
@@ -221,10 +270,12 @@ def filter_feedbacks(
         )
 
     # ---- correction filter ----
-    if has_correction is True:
-        query = query.filter(Feedback.corrected_response.isnot(None))
-    elif has_correction is False:
-        query = query.filter(Feedback.corrected_response.is_(None))
+    if has_correction is not None:
+        is_corrected = has_correction.lower() in ("true", "1", "yes")
+        if is_corrected:
+            query = query.filter(Feedback.corrected_response != "")
+        else:
+            query = query.filter(Feedback.corrected_response == "")
 
     feedbacks = query.order_by(Feedback.created_at.desc()).all()
 

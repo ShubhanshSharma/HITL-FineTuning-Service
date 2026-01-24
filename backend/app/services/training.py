@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[3]  # project root
 sys.path.append(str(ROOT))
 
 
-from modal_apps.train_lora_app import train_lora
+
 
 
 def trigger_training(model_version_id: str, json_url: str, adapter_config_json: str):

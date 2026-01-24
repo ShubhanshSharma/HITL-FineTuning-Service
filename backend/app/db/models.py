@@ -1,4 +1,5 @@
-from sqlalchemy import ARRAY, JSON, CheckConstraint, Integer, Boolean, Text, String, Column, DateTime, ForeignKey, func, Enum, UniqueConstraint
+from sqlalchemy import  JSON, CheckConstraint, Integer, Boolean, Text, String, Column, DateTime, ForeignKey, func, Enum, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY
 import uuid
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
@@ -36,6 +37,8 @@ class Organization(Base):
     version = Column(Integer, nullable=False, default=0);
 
     hmac_secret = Column(Text, nullable=False)
+
+    llm_request_schema = Column(JSONB)
 
     @property
     def hmac(self) -> str:
@@ -154,4 +157,23 @@ class ModelVersion(Base):
 
     __table_args__ = (
         UniqueConstraint("org_id", "version", name="uq_org_version"),
+    )
+
+
+
+
+# ...existing code...
+
+class OTP(Base):
+    __tablename__ = "otp"
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)  # Added primary key
+    email = Column(Text, nullable=False, unique=True, index=True)
+    otp_code = Column(String(6), nullable=False)
+    
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False, default=lambda: func.now() + func.interval('6 minutes'))
+    
+
+    __table_args__ = (
+        CheckConstraint("LENGTH(otp_code) = 6", name="otp_code_length"),
     )

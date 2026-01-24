@@ -114,7 +114,7 @@ export default function Sidebar() {
             : "hover:bg-gray-800/60 border border-transparent"
         } ${highlight ? "ring-2 ring-green-500/50 animate-pulse" : ""}`}
       >
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
           <div className={`shrink-0 ${isActive ? "text-blue-400" : "text-gray-400 group-hover:text-gray-300"}`}>
             {icon}
           </div>
@@ -190,7 +190,10 @@ export default function Sidebar() {
       <div className="p-4 border-b border-gray-800">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <div onClick={() => router.push('/home')} className="flex cursor-pointer items-center gap-3">
+            <div
+              onClick={() => router.push("/home")}
+              className="flex cursor-pointer items-center gap-3"
+            >
               <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                 <svg
                   className="w-5 h-5 text-white"
@@ -257,7 +260,7 @@ export default function Sidebar() {
                 />
               </svg>
             }
-            label="Chat"
+            label="Collect Feedbacks"
             subInfo={
               (data?.chat?.live_model_version ?? 0) >= 0
                 ? `Model v${data?.chat?.live_model_version}`
@@ -292,47 +295,59 @@ export default function Sidebar() {
             href="/create-dataset"
             icon={
               <svg
-                className="w-5 h-5"
-                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
                 viewBox="0 0 24 24"
+                fill="none"
                 stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                className="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-                />
+                <path d="M10 5H3" />
+                <path d="M12 19H3" />
+                <path d="M14 3v4" />
+                <path d="M16 17v4" />
+                <path d="M21 12h-9" />
+                <path d="M21 19h-5" />
+                <path d="M21 5h-7" />
+                <path d="M8 10v4" />
+                <path d="M8 12H3" />
               </svg>
             }
-            label="Create Dataset"
+            label="Filter Feedbacks"
             subInfo={`${data?.feedback?.count || 0} feedback items`}
             highlight={readyForTraining}
-            
           />
         </div>
 
-        {/* Training Section */}
+        {/* JSONL Section */}
         <div className="space-y-2">
           {/* <SectionHeader>Training</SectionHeader> */}
           <NavItem
             href="/training-orchestration"
             icon={
               <svg
-                className="w-5 h-5"
-                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
                 viewBox="0 0 24 24"
+                fill="none"
                 stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                className="lucide lucide-file-braces-corner-icon lucide-file-braces-corner"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                />
+                <path d="M14 22h4a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v6" />
+                <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                <path d="M5 14a1 1 0 0 0-1 1v2a1 1 0 0 1-1 1 1 1 0 0 1 1 1v2a1 1 0 0 0 1 1" />
+                <path d="M9 22a1 1 0 0 0 1-1v-2a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-2a1 1 0 0 0-1-1" />
               </svg>
             }
-            label="Training"
+            label="JSONL"
             subInfo={`v${data?.training.latest_model_version}`}
             badge={
               data?.training?.latest_status &&
@@ -344,7 +359,9 @@ export default function Sidebar() {
                 >
                   {getStatusIcon(data.training.latest_status)}
                   <span className="text-xs font-medium">
-                    {data.training.latest_status.replace(/_/g, " ").substring(0, 15)}
+                    {data.training.latest_status
+                      .replace(/_/g, " ")
+                      .substring(0, 15)}
                   </span>
                 </div>
               )
@@ -419,7 +436,7 @@ export default function Sidebar() {
               </svg>
             }
             label="History"
-            subInfo={`${data?.models?.length || 0} models trained`}
+            subInfo={`Finished ${Math.max((data?.models?.length || 0) - 1, 0)} Finetuning jobs`}
             badge={
               (data?.models?.length ?? 0) > 0 && (
                 <div className="px-2 py-1 rounded-full bg-purple-500/20 border border-purple-500/30">

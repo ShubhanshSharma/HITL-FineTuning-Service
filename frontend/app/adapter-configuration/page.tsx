@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -53,7 +54,7 @@ export default function LoRAConfigPage() {
     "up_proj",
     "down_proj",
   ];
-
+  const router = useRouter();
   // Auto-update target modules when base model changes
   useEffect(() => {
   const recommended = MODEL_TARGET_MODULE_MAP[baseModel];
@@ -175,11 +176,16 @@ const toggleTargetModule = (module: string) => {
         throw new Error("Failed to configure LoRA adapter");
       }
 
-      toast.success("LoRA configuration submitted successfully!", {
+      toast.success("LoRA configuration Generated successfully!", {
         position: "top-right",
         autoClose: 5500,
         toastId: "submit-success",
       });
+
+      setTimeout(() => {
+      router.push("/chat");
+    }, 3000);
+
     } catch (error: any) {
       toast.error(`Error: ${error.message}`, {
         position: "top-right",
@@ -756,7 +762,7 @@ const toggleTargetModule = (module: string) => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                Submitting...
+                Generating...
               </span>
             ) : (
               "Generate LoRA Adapter"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,6 +22,8 @@ export default function ChatPage() {
     "Clarity & Style": ["unclear", "verbose"],
     "Safety & Policy": ["unsafe", "policy_violation"],
   };
+
+  const router = useRouter();
 
   const handleSubmitPrompt = async () => {
     if (!prompt.trim()) return;
@@ -222,7 +225,18 @@ export default function ChatPage() {
             rows={5}
             className="w-full px-4 py-3 bg-black/50 border border-gray-800 text-white rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 resize-none placeholder-gray-600 transition-all"
           />
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-4 gap-6">
+             {/* <button
+              onClick={() => router.push('/validate-endpoint')}
+              
+              className="px-8 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 font-medium shadow-lg shadow-green-500/20 ne"
+            >
+              
+                <span className="flex items-center gap-2">
+                 
+                  Test LLM Endpoint
+                </span>
+            </button> */}
             <button
               onClick={handleSubmitPrompt}
               disabled={loading || !prompt.trim()}

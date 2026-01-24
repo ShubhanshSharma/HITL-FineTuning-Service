@@ -7,10 +7,11 @@ from requests import Session
 from app.api.deps import get_db
 from app.db.models import Feedback, ModelVersion
 from app.services.jwt_helper import get_org_context
-from app.schemas.jsonl_cleaning import clean_feedbacks
+from app.schemas.jsonl_cleaning import cpu_clean
 from app.schemas.training import AdapterConfigRequestSchema
 from app.services.training import trigger_training
 from app.services.supabase_upload import upload_jsonl
+from app.services.gpu_cleaning import trigger_gpu_cleaning
 
 router = APIRouter()
 
@@ -37,14 +38,10 @@ def generate_jsonl(
     if not model_version.feedback_ids:
         raise HTTPException(400, "No feedbacks selected for training")
 
-    # ---- local jsonl generation ----
     output_dir = Path("training_data")
     output_dir.mkdir(exist_ok=True)
 
-    file_path = output_dir / f"{model_version.id}.jsonl"
-
-    if file_path.exists():
-        raise HTTPException(409, "Training dataset already exists")
+    cpu_file_path = output_dir / f"{model_version.id}_cpu.jsonl"
 
     raw_feedbacks = (
         db.query(Feedback)
@@ -55,13 +52,15 @@ def generate_jsonl(
         .all()
     )
 
-    cleaned_feedbacks = clean_feedbacks(raw_feedbacks)
+    # 1️⃣ CPU clean
+    cpu_cleaned_feedbacks = cpu_clean(raw_feedbacks)
 
-    if not cleaned_feedbacks:
-        raise HTTPException(400, "No valid feedbacks after cleaning")
+    if not cpu_cleaned_feedbacks:
+        raise HTTPException(400, "No valid feedbacks after CPU cleaning")
 
-    with file_path.open("w", encoding="utf-8") as f:
-        for fb in cleaned_feedbacks:
+    # 2️⃣ write CPU-cleaned JSONL
+    with cpu_file_path.open("w", encoding="utf-8") as f:
+        for fb in cpu_cleaned_feedbacks:
             f.write(
                 json.dumps(
                     {
@@ -74,28 +73,37 @@ def generate_jsonl(
                 + "\n"
             )
 
-    # ---- upload to supabase ----
-    object_path = f"{org_id}/{model_version.id}/dataset.jsonl"
+    # 3️⃣ upload CPU-cleaned JSONL
+    cpu_object_path = f"{org_id}/{model_version.id}/cpu_cleaned.jsonl"
 
     try:
-        public_url = upload_jsonl(file_path, object_path)
+        cpu_jsonl_url = upload_jsonl(cpu_file_path, cpu_object_path)
     except Exception as e:
-        raise HTTPException(500, f"Upload failed: {str(e)}")
+        raise HTTPException(500, f"CPU upload failed: {str(e)}")
 
-    # ---- lifecycle transition ----
+    # 4️⃣ trigger GPU cleaning (Modal)
+    gpu_result = trigger_gpu_cleaning(cpu_jsonl_url)
+
+    cleaned_jsonl_url = gpu_result["cleaned_jsonl_url"]
+    row_count = gpu_result["rows_kept"]
+
+    if row_count == 0:
+        raise HTTPException(400, "No valid feedbacks after GPU cleaning")
+
+    # 5️⃣ lifecycle transition
     model_version.status = "TRAINING_REQUESTED"
-    model_version.json_url = public_url
-    model_version.row_count = len(cleaned_feedbacks)
+    model_version.json_url = cleaned_jsonl_url
+    model_version.row_count = row_count
 
-    
     db.commit()
 
     return {
         "message": "Training dataset created",
-        "json_url": public_url,
-        "rows": len(cleaned_feedbacks),
+        "json_url": cleaned_jsonl_url,
+        "rows": row_count,
         "status": model_version.status,
     }
+
 
 
 

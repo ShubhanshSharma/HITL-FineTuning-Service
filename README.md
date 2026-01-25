@@ -119,13 +119,13 @@ Includes:
 ---
 
 ## Contact
-We've made every effort to implement all the main aspects of the OpenID protocol in the best possible way. However, the development journey doesn't end here, and your input is crucial for our continuous improvement.
+We've made every effort to implement all the main aspects of the HITL LoRA Factory in the best possible way. However, the development journey doesn't end here, and your input is crucial for our continuous improvement.
 
 
 📧 **Email**: shubhanshsharma030604@gmail.com  
 
 <p align="center">
-  <img src="docs/contact.gif" width="400" />
+  <img src="https://c.tenor.com/fnKfT5MMjvQAAAAd/tenor.gif" width="600" />
 </p>
 
 

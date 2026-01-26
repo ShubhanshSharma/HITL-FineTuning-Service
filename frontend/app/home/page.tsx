@@ -1,10 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Noto_Serif } from "next/font/google";
 
+
+  const notoSerif = Noto_Serif({
+    subsets: ['latin']
+  })
+  
 export default function LandingPage() {
   const router = useRouter();
-
+  
   return (
     <div className="bg-linear-to-r from-gray-950 via-gray-950 to-black font-sans text-white min-h-screen">
       
@@ -12,8 +18,8 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center px-6 pt-10  ">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="mb-6">
-            <span className=" text-4xl font-light bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent md:text-7xl ">
+          <div className="mb-18">
+            <span className={` ${notoSerif.className} text-4xl font-black bg-linear-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent md:text-7xl `}>
               HITL LoRA Pipeline
             </span>
           </div>

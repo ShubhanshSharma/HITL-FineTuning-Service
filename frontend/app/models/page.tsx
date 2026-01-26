@@ -167,7 +167,7 @@ export default function ModelVersionsPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-              Model Version {selectedModel.version}
+              Training Version {selectedModel.version}
             </h1>
             <p className="text-gray-500 text-sm">ID: {selectedModel.id}</p>
           </div>
@@ -537,7 +537,7 @@ export default function ModelVersionsPage() {
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Versions History
+            Training History
           </h1>
           <p className="text-gray-500 text-sm">
             View and manage all trained LoRA adapters
